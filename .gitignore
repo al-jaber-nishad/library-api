@@ -1,0 +1,11 @@
+## Django ##
+venv
+.venv
+*.pyc
+staticfiles
+static
+media
+.env
+.DS_Store
+logs/
+
