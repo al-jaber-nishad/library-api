@@ -69,6 +69,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
+AUTH_USER_MODEL= 'authentication.User'
+AUTHENTICATION_BACKENDS = [
+    'authentication.auth_backend.EmailorPhoneModelBackend',
+    ]
 
 
 # Database
