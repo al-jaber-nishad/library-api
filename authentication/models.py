@@ -80,7 +80,6 @@ class User(AbstractBaseUser):
     is_admin = models.BooleanField(default=False)
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True)
     
-    
     penalty_points = models.IntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
