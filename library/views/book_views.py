@@ -21,7 +21,7 @@ def book_list(request):
             books = books.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
         
         # Apply ordering if provided
-        ordering = request.query_params.get('ordering', 'name')
+        ordering = request.query_params.get('ordering', 'title')
         books = books.order_by(ordering)
         
         serializer = BookSerializer(books, many=True)
@@ -63,8 +63,8 @@ def book_detail(request, pk):
             return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
         
         if request.method == 'PUT':
-            """Update or delete an book. Admin only."""
-            serializer = BookSerializer(book, data=request.data)
+            """Update an book. Admin only."""
+            serializer = BookSerializer(book, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)

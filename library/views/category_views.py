@@ -1,8 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.db.models import Q
-
 from library.models import Category
 from library.serializers import (
     CategorySerializer,
@@ -18,7 +16,7 @@ def category_list(request):
         # Apply search if provided
         search_query = request.query_params.get('search', None)
         if search_query:
-            categorys = categorys.filter(Q(name__icontains=search_query) | Q(bio__icontains=search_query))
+            categorys = categorys.filter(name__icontains=search_query)
         
         # Apply ordering if provided
         ordering = request.query_params.get('ordering', 'name')
