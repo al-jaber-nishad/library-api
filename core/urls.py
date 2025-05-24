@@ -8,4 +8,5 @@ urlpatterns = [
     path('', include('authentication.urls.auth')),
     path('api/', include('library.urls.author_urls')),
     path('api/', include('library.urls.category_urls')),
+    path('api/', include('library.urls.book_urls')),
 ]
