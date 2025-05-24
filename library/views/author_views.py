@@ -1,7 +1,6 @@
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.permissions import IsAdminUser
 from django.db.models import Q
 
 from library.models import Author
@@ -40,34 +39,34 @@ def author_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
-def author_detail_get(request, pk):
-    """Retrieve an author."""
-    try:
-        author = Author.objects.get(pk=pk)
-    except Author.DoesNotExist:
-        return Response({"detail": "Author not found."}, status=status.HTTP_404_NOT_FOUND)
-    
-    serializer = AuthorSerializer(author)
-    return Response(serializer.data)
 
-
-@api_view(['PUT', 'DELETE'])
-@permission_classes([IsAdminUser])
-def author_detail_admin(request, pk):
+@api_view(['GET', 'PUT', 'DELETE'])
+def author_detail(request, pk):
     """Update or delete an author. Admin only."""
     try:
         author = Author.objects.get(pk=pk)
     except Author.DoesNotExist:
         return Response({"detail": "Author not found."}, status=status.HTTP_404_NOT_FOUND)
-    
-    if request.method == 'PUT':
-        serializer = AuthorSerializer(author, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    elif request.method == 'DELETE':
-        author.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    if request.method == 'GET':
+        try:
+            author = Author.objects.get(pk=pk)
+        except Author.DoesNotExist:
+            return Response({"detail": "Author not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = AuthorSerializer(author)
+        return Response(serializer.data)
+    else:
+        if not request.user.is_staff:
+            return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
+        
+        if request.method == 'PUT':
+            serializer = AuthorSerializer(author, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        elif request.method == 'DELETE':
+            author.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
