@@ -9,4 +9,5 @@ urlpatterns = [
     path('api/', include('library.urls.author_urls')),
     path('api/', include('library.urls.category_urls')),
     path('api/', include('library.urls.book_urls')),
+    path('api/', include('library.urls.borrow_urls')),
 ]

@@ -110,7 +110,7 @@ class BorrowSerializer(serializers.ModelSerializer):
             return super().create(validated_data)
 
 class ReturnBookSerializer(serializers.Serializer):
-    borrow_id = serializers.IntegerField()
+    borrow_id = serializers.CharField()
     
     def validate_borrow_id(self, value):
         user = self.context['request'].user
@@ -129,33 +129,7 @@ class ReturnBookSerializer(serializers.Serializer):
             raise serializers.ValidationError("This book has already been returned.")
         
         return value
-    
-    def save(self):
-        borrow_id = self.validated_data['borrow_id']
-        user = self.context['request'].user
-        
-        with transaction.atomic():
-            # Get the borrow record
-            borrow = Borrow.objects.get(id=borrow_id)
-            
-            # Update the book's available copies
-            book = borrow.book
-            book.available_copies += 1
-            book.save()
-            
-            # Update the borrow record
-            borrow.return_date = timezone.now()
-            borrow.returned = True
-            borrow.save()
-            
-            # Calculate and add penalty points if returned late
-            penalty_points = borrow.calculate_penalty()
-            if penalty_points > 0:
-                profile = borrow.user.profile
-                profile.penalty_points += penalty_points
-                profile.save()
-            
-            return borrow
+
 
 class PenaltyPointsSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username', read_only=True)
