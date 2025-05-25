@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.response import Response
 from django.db import transaction
 from django.utils import timezone
@@ -12,11 +12,13 @@ from library.serializers import (
     PenaltyPointsSerializer,
     ReturnBookSerializer,
 )
+from utils.throttling import BurstRateThrottle, SustainedRateThrottle
 
 
 # Borrowing views
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
+@throttle_classes([BurstRateThrottle])
 def borrow_list(request):
     """List user's borrows or create a new borrow record."""
     if request.method == 'GET':
@@ -88,6 +90,7 @@ def borrow_list(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+@throttle_classes([SustainedRateThrottle])
 def borrow_detail(request, pk):
     """Retrieve a borrow record."""
     try:
@@ -105,6 +108,7 @@ def borrow_detail(request, pk):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@throttle_classes([BurstRateThrottle])
 def return_book(request):
     """Return a borrowed book."""
     serializer = ReturnBookSerializer(data=request.data, context={'request': request})
@@ -157,6 +161,7 @@ def return_book(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+@throttle_classes([SustainedRateThrottle])
 def user_penalties(request, user_id=None):
     """View user penalty points."""
     # If user_id is provided, get that user's penalties (admin only)

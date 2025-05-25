@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
 from django.db.models import Q
 
@@ -7,9 +7,11 @@ from library.models import Book
 from library.serializers import (
     BookSerializer,
 )
+from utils.throttling import SustainedRateThrottle
 
 
 @api_view(['GET', 'POST'])
+@throttle_classes([SustainedRateThrottle])
 def book_list(request):
     """List all books or create a new book."""
     if request.method == 'GET':
@@ -42,6 +44,7 @@ def book_list(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
+@throttle_classes([SustainedRateThrottle])
 def book_detail(request, pk):
     """Get book details, update or delete an book. Admin only."""
     try:

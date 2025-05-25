@@ -1,5 +1,6 @@
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, throttle_classes
+from utils.throttling import SustainedRateThrottle
 from rest_framework.response import Response
 from library.models import Category
 from library.serializers import (
@@ -8,6 +9,7 @@ from library.serializers import (
 
 
 @api_view(['GET', 'POST'])
+@throttle_classes([SustainedRateThrottle])
 def category_list(request):
     """List all categorys or create a new category."""
     if request.method == 'GET':
