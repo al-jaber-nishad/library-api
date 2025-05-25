@@ -4,9 +4,12 @@ from rest_framework.response import Response
 from django.db import transaction
 from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from authentication.models import User
 from library.models import Book, Borrow
 from library.serializers import (
     BorrowSerializer,
+    PenaltyPointsSerializer,
     ReturnBookSerializer,
 )
 
@@ -150,3 +153,20 @@ def return_book(request):
             return Response(response_data, status=status.HTTP_200_OK)
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_penalties(request, user_id=None):
+    """View user penalty points."""
+    # If user_id is provided, get that user's penalties (admin only)
+    # Otherwise, get the current user's penalties
+    if user_id and user_id != request.user.id:
+        if not request.user.is_staff:
+            return Response({"detail": "Permission denied."}, status=status.HTTP_403_FORBIDDEN)
+        user = get_object_or_404(User, pk=user_id)
+    else:
+        user = request.user
+    
+    serializer = PenaltyPointsSerializer(user)
+    return Response(serializer.data)
