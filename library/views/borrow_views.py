@@ -12,6 +12,7 @@ from library.serializers import (
     PenaltyPointsSerializer,
     ReturnBookSerializer,
 )
+from library.tasks import send_due_date_notification
 from utils.throttling import BurstRateThrottle, SustainedRateThrottle
 
 
@@ -83,6 +84,9 @@ def borrow_list(request):
                 due_date=timezone.now() + timezone.timedelta(days=14)
             )
             borrow.save()
+            
+            # Send due date notification
+            send_due_date_notification.delay()
             
             serializer = BorrowSerializer(borrow)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
