@@ -16,7 +16,7 @@ A Django REST API for a Library Management System that supports user registratio
 
 1. Clone the repository:
    ```bash
-   git clone https://gitlab.com/aj_nishad/library-api
+   git clone https://github.com/al-jaber-nishad/library-api
    cd library-api
    ```
 
